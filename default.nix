@@ -3,7 +3,7 @@
 # called by the `nix` commands. It includes dev tools and handles the build of
 # the engine and game.
 #
-{ pkgs ? import <nixos-22.05> {}
+{ pkgs ? import <nixpkgs> {}
 , servername
 , branchname
 , pakpath
