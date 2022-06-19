@@ -19,6 +19,9 @@ stdenv.mkDerivation rec {
   buildPhase = ''
     cd unvanquished_src.dpkdir
     cp -v --no-preserve=mode ${unvanquished-vms}/* .
+    rm *.so
+    rm .git* -r
+    rm .pakinfo -r
     7z -tzip -mx=9 a ../${filename}_${version}.dpk .
     cd ..
   '';
