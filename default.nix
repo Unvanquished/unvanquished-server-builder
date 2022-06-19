@@ -89,12 +89,19 @@ in rec {
   # This is a huge-ass wrapper
   server = writeScript "unvanquished-server" ''
     #!/bin/sh
+
     GDB=""
     if [ -z "$NO_GDB" ]; then
         GDB='${gdb}/bin/gdb --eval-command=run --args'
     fi
     export PATH=${bash}/bin
     export SHELL=${bash}/bin/bash
+
+    # set a default value for $@ if there is no arguments to this script
+    if [ $# -eq 0 ]; then
+        set -- +devmap chasm
+    fi
+
     #exec ${tmux}/bin/tmux new-session -s server-${servername} \
         ${bubblewrap}/bin/bwrap \
             --unshare-all --share-net \
