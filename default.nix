@@ -109,6 +109,7 @@ in rec {
             --ro-bind ${pakpath} ${pakpath} \
             --ro-bind /var/www/cdn.unvanquished.net/unvanquished_0.52.1/pkg /var/www/cdn.unvanquished.net/unvanquished_0.52.1/pkg \
             --bind ${homepath} ${homepath} \
+            --ro-bind ~/unvanquished-server/homepath/game/admin.dat ${homepath}/game/admin.dat \
             --tmpfs /tmp \
             --proc /proc \
             --dev /dev \
