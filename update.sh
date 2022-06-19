@@ -115,8 +115,7 @@ build_instances() {
 	for branch_name in $branches_to_build; do
 		build_instance "$branch_name"
 	done
-	rm -rf $pakpath/experimental/* || : # TODO: rm -r
-	cp -r $subpakpath/* $pakpath/experimental/
+	rsync -r --links $subpakpath/ $pakpath/experimental/
 }
 
 main() {
