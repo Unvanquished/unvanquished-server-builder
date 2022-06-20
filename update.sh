@@ -50,7 +50,7 @@ fetch_branches() {
 			printf "Error: %s\n" "$message" 1>&2
 			exit 1
 		fi
-		mv "$datadir/$reponame.new.json" "$datadir/$reponame.json"
+		mv "$datadir/$reponame.new.json" -T "$datadir/$reponame.json"
 		printf "Fetched %s\n" "$datadir/$reponame.json"
 	done
 }
@@ -186,41 +186,27 @@ deploy_instance() {
 	debug "Running:   nix-build $root $build_args -A server -o $new_bin"
 	                  nix-build $root $build_args -A server -o $new_bin
 
-	old_dpk=$subpakpath/$server_name
 	new_dpk=$subpakpath/$server_name-new
+	old_dpk=$subpakpath/$server_name
 	debug "Running:   nix-build $root $build_args -A unvanquished-dpk -o $new_dpk"
 	                  nix-build $root $build_args -A unvanquished-dpk -o $new_dpk
 
-	if [ ! -L $old_bin ] || [ ! -L $old_dpk ] || \
-	   [ $(readlink $new_bin) != $(readlink $old_bin) ] || \
-	   [ $(readlink $new_dpk) != $(readlink $old_dpk) ]; then
-		printf "deploying new version of %s\n" "$branch_name" 2>&1
-		# new version to release!
-		mv $new_bin $old_bin
-		mv $new_dpk $old_dpk
+	if [ ! -L "$old_bin" ] || [ ! -L "$old_dpk" ] || \
+	   [ "$(readlink $new_bin)" != "$(readlink $old_bin)" ] || \
+	   [ "$(readlink $new_dpk)" != "$(readlink $old_dpk)" ]; then
+		printf "deploying new version of %s\n" "$branch_name" 1>&2
+		mv $new_bin -T $old_bin
+		mv $new_dpk -T $old_dpk
 
-		if tmux -L testing-server has-session -t serv-$server_name &>/dev/null; then
-			printf "killing the old server\n"
-			tmux -L testing-server kill-session -t serv-$server_name
-		fi
-		# this will start the new server in tmux
-		printf "starting the new one\n"
-		$old_bin
+		restart_instance "$server_name" "$homepath"
 	else
 		printf "no deploy needed.\n" 1>&2
 		rm $new_bin
-		rm $new_bin
-		printf "no deploy needed.\n"
+		rm $new_dpk
 	fi
 }
 
 deploy_instances() {
-	[ -d $subpakpath ] && rm -rf $subpakpath || :
-	mkdir -p $subpakpath
-
-	[ -d $binaries ] && rm -rf $binaries || :
-	mkdir -p $binaries
-
 	for branch_name in $branches_to_build; do
 		deploy_instance "$branch_name"
 	done
@@ -228,6 +214,31 @@ deploy_instances() {
 	rsync -r --links $subpakpath/ $pakpath/experimental/
 }
 
+restart_instance() {
+	local server_name="$1"
+	local homepath="$2"
+
+	if tmux -L testing-server has-session -t serv-$server_name &>/dev/null; then
+		printf "killing %s\n" "$server_name" 1>&2
+		rm $homepath/lock-server -f  # useful for when daemon crashed
+		tmux -L testing-server kill-session -t serv-$server_name
+	fi
+
+	# this will start the new server in tmux
+	printf "starting %s\n" "$server_name" 1>&2
+	$binaries/server-$server_name
+}
+
+restart_all() {
+	for branch_name in $branches_to_build; do
+		local branch_name="$1"
+		local branch_shortname="${branch_name%/*}"
+		local server_name="${branch_shortname/\//-}"
+		local homepath="$homepaths/$server_name"
+		restart_instance "$server_name" "$homepath"
+	done
+
+}
 
 case "${1:-}" in
 	fetch)
@@ -241,6 +252,10 @@ case "${1:-}" in
 		calculate_repo_info
 		deploy_instances
 		;;
+	restart_all)
+		calculate_repo_info
+		deploy_instances
+		;;
 	*)
 		printf "Invalid invocation\n\n\tusage: %s fetch|compile|deploy\n\n" "$0"
 		printf "fetch:   Grab the GitHub JSON files for the API\n"
@@ -251,5 +266,7 @@ case "${1:-}" in
 		printf "               * Start the new ones\n"
 		printf "               * Copy the pakpath for the http server\n"
 		printf "             Note that it *won't* stop or remove a deleted instance\n"
+		printf "restart:  Stop and restart all servers.\n"
+		printf "             Note that it *won't* stop a deleted server\n"
 		;;
 esac
