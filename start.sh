@@ -12,9 +12,12 @@ exec tmux -L testing-server new-session \
 		~/unv-testing-server/update.sh compile && \
 		~/unv-testing-server/update.sh deploy
 
+		if [ $? -ne 0 ]; then
+			printf "\nDeployment FAILED\n"
+		fi
 		printf "\n"
 		for time in $(seq $((60*3)) -1 1); do
-			printf "\rRunning update script in %i seconds  " $time
+			printf "\rRunning update script again in %i seconds  " $time
 			sleep 1
 		done
 		printf "\n\n"

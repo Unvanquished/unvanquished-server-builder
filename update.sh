@@ -46,7 +46,7 @@ fetch_branches() {
 	for repo in $repos; do
 		local reponame="${repo/\//-}"
 		curl -H "Accept: application/vnd.github.v3+json" "https://api.github.com/repos/$repo/branches?per_page=100" --no-progress-meter > "$datadir/$reponame.new.json"
-		if message=$(jq '.name' < "$datadir/$reponame.new.json" 2> /dev/null); then
+		if message=$(jq -r '.message' < "$datadir/$reponame.new.json" 2> /dev/null); then
 			printf "Error: %s\n" "$message" 1>&2
 			exit 1
 		fi
@@ -142,7 +142,7 @@ compile_instance() {
 	local server_name="${branch_shortname/\//-}"
 	local build_args
 
-	printf "\nBuilding %s.\n" "$branch_name"
+	printf "\nBuilding %s.\n" "$branch_name" 1>&2
 
 	build_args=$(calculate_build_arguments "$branch_name")
 
@@ -152,7 +152,7 @@ compile_instance() {
 	debug "Running:   nix-build $root $build_args -A unvanquished-dpk --no-out-link"
 	                  nix-build $root $build_args -A unvanquished-dpk --no-out-link
 
-	printf "built\n"
+	printf "built\n" 1>&2
 }
 
 compile_instances() {
@@ -177,7 +177,7 @@ deploy_instance() {
 	# note homepath may already exist
 	mkdir -p $homepath
 
-	printf "\nDeploying %s.\n" "$branch_name"
+	printf "\nDeploying %s.\n" "$branch_name" 1>&2
 
 	build_args=$(calculate_build_arguments "$branch_name")
 
@@ -207,7 +207,7 @@ deploy_instance() {
 		printf "starting the new one\n"
 		$old_bin
 	else
-		# no need to do anything
+		printf "no deploy needed.\n" 1>&2
 		rm $new_bin
 		rm $new_bin
 		printf "no deploy needed.\n"
