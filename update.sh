@@ -16,30 +16,58 @@ experimental_base_branch="0.53.0/sync"
 
 repos="DaemonEngine/Daemon Unvanquished/Unvanquished UnvanquishedAssets/unvanquished_src.dpkdir"
 
+# the nightly pakpath
 pakpath="$HOME/unvanquished-server/pakpath"
+# the testing servers common paths
 root="$HOME/unv-testing-server"
 subpakpath="$root/pakpath"
 binaries="$root/bins"
 homepaths="$root/homepaths"
 
+# only used by this script
+datadir="$root/data"
+
 # End of config
 ##########################################################################################
 
+debug() {
+	if [ -n "${DEBUG:-}" ]; then
+		printf "$@" 1>&2
+	fi
+}
+
 ###
-# JSON handling
+# GitHub API
 ###
+
+fetch_branches() {
+	mkdir -p "$datadir"
+	local message
+	for repo in $repos; do
+		local reponame="${repo/\//-}"
+		curl -H "Accept: application/vnd.github.v3+json" "https://api.github.com/repos/$repo/branches?per_page=100" --no-progress-meter > "$datadir/$reponame.new.json"
+		if message=$(jq '.name' < "$datadir/$reponame.new.json" 2> /dev/null); then
+			printf "Error: %s\n" "$message" 1>&2
+			exit 1
+		fi
+		mv "$datadir/$reponame.new.json" "$datadir/$reponame.json"
+		printf "Fetched %s\n" "$datadir/$reponame.json"
+	done
+}
+
 get_branches() {
 	local repo="$1"
-	#cat ${repo/\//-}.json \
-	curl -H "Accept: application/vnd.github.v3+json" "https://api.github.com/repos/"$repo"/branches?per_page=100" --no-progress-meter \
+	cat "$datadir/${repo/\//-}.json" \
 		| jq "map(select(.name | endswith(\"$testing_branch_suffix\") or endswith(\"$experimental_branch_suffix\") or . == \"$testing_base_branch\" or . == \"$experimental_base_branch\"))"
 }
+
 get_branches_names() {
 	# takes a list of branch like returned by $(get_branches DaemonEngine/Daemon)
 	local json="$1"
 	printf "%s" "$json" \
 		| jq -r ".[] | .name"
 }
+
 get_branch_commit_sha() {
 	local json="$1"
 	local branch_name="$2"
@@ -48,7 +76,13 @@ get_branch_commit_sha() {
 		| jq -r -e "map(select(.name == \"$branch_name\") | .commit.sha) | .[]"
 }
 
-fetch_repo_info() {
+
+###
+# Data Processing
+###
+
+# outputs to 3 global variables
+calculate_repo_info() {
 	declare -Ag branches
 	declare -Ag branches_names
 	for repo in $repos; do
@@ -62,25 +96,24 @@ fetch_repo_info() {
 	branches_to_build=$( (for b in ${branches_names[@]}; do printf "%s\n" "$b"; done) | sort -u | grep -v '^master$' | grep -v '^0.53.0/sync$' )
 }
 
-build_instance() {
+# outputs the build args to stdout
+calculate_build_arguments() {
 	local branch_name="$1"
 	local branch_shortname="${branch_name%/*}"
 	local server_name="${branch_shortname/\//-}"
-	echo "# Building $branch_name."
-
 	local homepath="$homepaths/$server_name"
-	mkdir -p $homepath
 
+	local base_branch
 	if grep -q "$experimental_branch_suffix\$" <<<"$branch_name"; then
 		base_branch="$experimental_base_branch"
 	else
 		base_branch="$testing_base_branch"
 	fi
 
-	local build_args="--argstr pakpath $pakpath"
-	build_args="$build_args --argstr servername $server_name"
-	build_args="$build_args --argstr branchname $branch_name"
-	build_args="$build_args --argstr homepath $homepath"
+	printf "%s " --argstr pakpath "$pakpath"
+	printf "%s " --argstr servername "$server_name"
+	printf "%s " --argstr branchname "$branch_name"
+	printf "%s " --argstr homepath "$homepath"
 	for repo in $repos; do
 		local shortname="${repo##*/}"
 		shortname="${shortname/./-}"
@@ -88,39 +121,135 @@ build_instance() {
 		local branch="$branch_name"
 
 		if ! commit=$(get_branch_commit_sha "${branches[$shortname]}" "$branch_name"); then
-			echo "there is no branch $branch_name in $shortname, taking default"
+			debug "there is no branch $branch_name in $shortname, defaulting to $base_branch\n"
 			commit="$(get_branch_commit_sha "${branches[$shortname]}" "$base_branch")"
 			branch="$base_branch"
 		fi
 
-		#echo "https://github.com/$repo/archive/$commit.tar.gz"
-		build_args="$build_args --argstr $shortname $branch"
-		build_args="$build_args --argstr $shortname-commit $commit"
+		# maybe "https://github.com/$repo/archive/$commit.tar.gz"?
+		printf "%s " --argstr $shortname $branch
+		printf "%s " --argstr $shortname-commit $commit
 	done
-
-	echo "Running:   nix-build $root $build_args -A server -o $binaries/server-$server_name"
-	                 nix-build $root $build_args -A server -o $binaries/server-$server_name
-
-	echo "Running:   nix-build $root $build_args -A unvanquished-dpk -o $subpakpath/$server_name"
-	                 nix-build $root $build_args -A unvanquished-dpk -o $subpakpath/$server_name
 }
 
-build_instances() {
-	echo "Building these branches:" $branches_to_build
-	# TODO: atomic updates and all
+###
+# Compiling
+###
+
+compile_instance() {
+	local branch_name="$1"
+	local branch_shortname="${branch_name%/*}"
+	local server_name="${branch_shortname/\//-}"
+	local build_args
+
+	printf "\nBuilding %s.\n" "$branch_name"
+
+	build_args=$(calculate_build_arguments "$branch_name")
+
+	debug "Running:   nix-build $root $build_args -A server --no-out-link"
+	                  nix-build $root $build_args -A server --no-out-link
+
+	debug "Running:   nix-build $root $build_args -A unvanquished-dpk --no-out-link"
+	                  nix-build $root $build_args -A unvanquished-dpk --no-out-link
+
+	printf "built\n"
+}
+
+compile_instances() {
+	debug "Building these branches: %s\n\n" "$(printf "%s " $branches_to_build)"
+
+	for branch_name in $branches_to_build; do
+		compile_instance "$branch_name"
+	done
+}
+
+###
+# Running
+###
+
+deploy_instance() {
+	local branch_name="$1"
+	local branch_shortname="${branch_name%/*}"
+	local server_name="${branch_shortname/\//-}"
+	local build_args
+
+	local homepath="$homepaths/$server_name"
+	# note homepath may already exist
+	mkdir -p $homepath
+
+	printf "\nDeploying %s.\n" "$branch_name"
+
+	build_args=$(calculate_build_arguments "$branch_name")
+
+	new_bin=$binaries/server-$server_name-new
+	old_bin=$binaries/server-$server_name
+	debug "Running:   nix-build $root $build_args -A server -o $new_bin"
+	                  nix-build $root $build_args -A server -o $new_bin
+
+	old_dpk=$subpakpath/$server_name
+	new_dpk=$subpakpath/$server_name-new
+	debug "Running:   nix-build $root $build_args -A unvanquished-dpk -o $new_dpk"
+	                  nix-build $root $build_args -A unvanquished-dpk -o $new_dpk
+
+	if [ ! -L $old_bin ] || [ ! -L $old_dpk ] || \
+	   [ $(readlink $new_bin) != $(readlink $old_bin) ] || \
+	   [ $(readlink $new_dpk) != $(readlink $old_dpk) ]; then
+		printf "deploying new version of %s\n" "$branch_name" 2>&1
+		# new version to release!
+		mv $new_bin $old_bin
+		mv $new_dpk $old_dpk
+
+		if tmux -L testing-server has-session -t serv-$server_name &>/dev/null; then
+			printf "killing the old server\n"
+			tmux -L testing-server kill-session -t serv-$server_name
+		fi
+		# this will start the new server in tmux
+		printf "starting the new one\n"
+		$old_bin
+	else
+		# no need to do anything
+		rm $new_bin
+		rm $new_bin
+		printf "no deploy needed.\n"
+	fi
+}
+
+deploy_instances() {
 	[ -d $subpakpath ] && rm -rf $subpakpath || :
 	mkdir -p $subpakpath
+
 	[ -d $binaries ] && rm -rf $binaries || :
 	mkdir -p $binaries
+
 	for branch_name in $branches_to_build; do
-		build_instance "$branch_name"
+		deploy_instance "$branch_name"
 	done
+
 	rsync -r --links $subpakpath/ $pakpath/experimental/
 }
 
-main() {
-	fetch_repo_info
-	build_instances
-}
 
-main "$@"
+case "${1:-}" in
+	fetch)
+		fetch_branches
+		;;
+	compile)
+		calculate_repo_info
+		compile_instances
+		;;
+	deploy)
+		calculate_repo_info
+		deploy_instances
+		;;
+	*)
+		printf "Invalid invocation\n\n\tusage: %s fetch|compile|deploy\n\n" "$0"
+		printf "fetch:   Grab the GitHub JSON files for the API\n"
+		printf "compile: Download and compile the sources\n"
+		printf "deploy:  Launch all the new instances.\n"
+		printf "             \`deploy\` will:\n"
+		printf "               * Stop the outdated instances that have been updated\n"
+		printf "               * Start the new ones\n"
+		printf "               * Copy the pakpath for the http server\n"
+		printf "             Note that it *won't* stop or remove a deleted instance\n"
+		;;
+esac

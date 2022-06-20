@@ -92,17 +92,15 @@ in rec {
 
     GDB=""
     if [ -z "$NO_GDB" ]; then
-        GDB='${gdb}/bin/gdb --eval-command=run --args'
+        GDB='${gdb}/bin/gdb --eval-command=run -iex '\''set pagination off'\'' --args'
     fi
-    export PATH=${bash}/bin
-    export SHELL=${bash}/bin/bash
 
     # set a default value for $@ if there is no arguments to this script
     if [ $# -eq 0 ]; then
         set -- +devmap chasm
     fi
 
-    #exec ${tmux}/bin/tmux new-session -s server-${servername} \
+    exec tmux -L testing-server new-session -s serv-${servername} -d \
         ${bubblewrap}/bin/bwrap \
             --unshare-all --share-net \
             --ro-bind /nix /nix \
@@ -114,6 +112,8 @@ in rec {
             --proc /proc \
             --dev /dev \
             --die-with-parent \
+            --setenv PATH  "${bash}/bin" \
+            --setenv SHELL "${bash}/bin/bash" \
             -- \
                 $GDB \
                     "${daemon}/bin/daemonded" \
