@@ -121,11 +121,12 @@ in rec {
                         -libpath ${unvanquished-vms} \
                         -homepath ${homepath} \
                         -set vm.sgame.type 3 \
+                        -set server.private 1 \
                         -set sv_hostname "^1Experimental ^3Development Server - ${servername}" \
                         -set g_motd "^2See the ${branchname} branch on GitHub." \
                         -set sv_allowdownload 1 \
-                        -set sv_dl_maxRate "100000" \
-                        -set sv_wwwDownload "1" \
+                        -set sv_dl_maxRate 1000000 \
+                        -set sv_wwwDownload 1 \
                         -set sv_wwwBaseURL "users.unvanquished.net/~afontain/pkg/nightly" \
                         -set sv_wwwFallbackURL "dl.unvanquished.net/pkg" \
                         -set net_port 27990 \
