@@ -97,7 +97,7 @@ in rec {
 
     # set a default value for $@ if there is no arguments to this script
     if [ $# -eq 0 ]; then
-        set -- +devmap chasm
+        set -- +devmap chasm +bot fill 4
     fi
 
     exec tmux -L testing-server new-session -s serv-${servername} -d \
