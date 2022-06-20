@@ -1,5 +1,5 @@
 set pagination off
-set logging on
+set logging enabled
 set backtrace limit 0
 run
 thread apply all backtrace
