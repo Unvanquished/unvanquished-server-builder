@@ -92,7 +92,7 @@ in rec {
 
     GDB=""
     if [ -z "$NO_GDB" ]; then
-        GDB='${gdb}/bin/gdb --eval-command=run -iex '\''set pagination off'\'' --args'
+        GDB="${gdb}/bin/gdb -x $HOME/unv-testing-server/gdbinit.txt --args"
     fi
 
     # set a default value for $@ if there is no arguments to this script
@@ -108,6 +108,7 @@ in rec {
             --ro-bind /var/www/cdn.unvanquished.net/unvanquished_0.52.1/pkg /var/www/cdn.unvanquished.net/unvanquished_0.52.1/pkg \
             --bind ${homepath} ${homepath} \
             --ro-bind ~/unvanquished-server/homepath/game/admin.dat ${homepath}/game/admin.dat \
+            --ro-bind ~/unv-testing-server/gdbinit.txt ~/unv-testing-server/gdbinit.txt \
             --tmpfs /tmp \
             --proc /proc \
             --dev /dev \
