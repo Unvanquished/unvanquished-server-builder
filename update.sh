@@ -81,15 +81,21 @@ get_branch_commit_sha() {
 # Data Processing
 ###
 
+server_name() {
+	local branch_name="$1"
+	local branch_shortname="${branch_name%/*}"
+	printf "%s" "${branch_shortname/\//-}"
+}
+
 # outputs to 3 global variables
 calculate_repo_info() {
 	declare -Ag branches
 	declare -Ag branches_names
 	for repo in $repos; do
-		local shortname="${repo##*/}"
-		shortname="${shortname/./-}"
-		branches[$shortname]="$(get_branches "$repo")"
-		branches_names[$shortname]="$(get_branches_names "${branches[$shortname]}")"
+		local repo_shortname="${repo##*/}"
+		repo_shortname="${repo_shortname/./-}"
+		branches[$repo_shortname]="$(get_branches "$repo")"
+		branches_names[$repo_shortname]="$(get_branches_names "${branches[$repo_shortname]}")"
 	done
 
 	declare -g branches_to_build
@@ -99,8 +105,7 @@ calculate_repo_info() {
 # outputs the build args to stdout
 calculate_build_arguments() {
 	local branch_name="$1"
-	local branch_shortname="${branch_name%/*}"
-	local server_name="${branch_shortname/\//-}"
+	local server_name="$(server_name "$branch_name")"
 	local homepath="$homepaths/$server_name"
 
 	local base_branch
@@ -115,20 +120,20 @@ calculate_build_arguments() {
 	printf "%s " --argstr branchname "$branch_name"
 	printf "%s " --argstr homepath "$homepath"
 	for repo in $repos; do
-		local shortname="${repo##*/}"
-		shortname="${shortname/./-}"
+		local repo_shortname="${repo##*/}"
+		repo_shortname="${repo_shortname/./-}"
 		local commit=""
 		local branch="$branch_name"
 
-		if ! commit=$(get_branch_commit_sha "${branches[$shortname]}" "$branch_name"); then
-			debug "there is no branch $branch_name in $shortname, defaulting to $base_branch\n"
-			commit="$(get_branch_commit_sha "${branches[$shortname]}" "$base_branch")"
+		if ! commit=$(get_branch_commit_sha "${branches[$repo_shortname]}" "$branch_name"); then
+			debug "there is no branch $branch_name in $repo_shortname, defaulting to $base_branch\n"
+			commit="$(get_branch_commit_sha "${branches[$repo_shortname]}" "$base_branch")"
 			branch="$base_branch"
 		fi
 
 		# maybe "https://github.com/$repo/archive/$commit.tar.gz"?
-		printf "%s " --argstr $shortname $branch
-		printf "%s " --argstr $shortname-commit $commit
+		printf "%s " --argstr $repo_shortname $branch
+		printf "%s " --argstr $repo_shortname-commit $commit
 	done
 }
 
@@ -138,8 +143,7 @@ calculate_build_arguments() {
 
 compile_instance() {
 	local branch_name="$1"
-	local branch_shortname="${branch_name%/*}"
-	local server_name="${branch_shortname/\//-}"
+	local server_name="$(server_name "$branch_name")"
 	local build_args
 
 	printf "\nBuilding %s.\n" "$branch_name" 1>&2
@@ -171,8 +175,7 @@ compile_instances() {
 
 deploy_instance() {
 	local branch_name="$1"
-	local branch_shortname="${branch_name%/*}"
-	local server_name="${branch_shortname/\//-}"
+	local server_name="$(server_name "$branch_name")"
 	local build_args
 
 	local homepath="$homepaths/$server_name"
@@ -238,8 +241,7 @@ restart_all() {
 
 	for branch_name in $branches_to_build; do
 		local branch_name="$1"
-		local branch_shortname="${branch_name%/*}"
-		local server_name="${branch_shortname/\//-}"
+		local server_name="$(server_name "$branch_name")"
 		local homepath="$homepaths/$server_name"
 		restart_instance "$server_name" "$homepath"
 	done
