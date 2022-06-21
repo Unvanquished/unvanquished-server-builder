@@ -254,7 +254,6 @@ restart_all() {
 	calculate_repo_info
 
 	for branch_name in $branches_to_build; do
-		local branch_name="$1"
 		local server_name="$(server_name "$branch_name")"
 		local homepath="$homepaths/$server_name"
 		restart_instance "$server_name" "$homepath"
