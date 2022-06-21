@@ -196,6 +196,15 @@ deploy_instance() {
 	debug "Running:   nix-build $root $build_args -A unvanquished-dpk -o $new_dpk"
 	                  nix-build $root $build_args -A unvanquished-dpk -o $new_dpk
 
+	# Used by the status command
+	mkdir -p $datadir/deployed_daemon
+	mkdir -p $datadir/deployed_dpk
+	mkdir -p $datadir/deployed_server
+
+	nix-store --query $(nix-instantiate $root $build_args -A daemon           2>/dev/null) > $datadir/deployed_daemon/$server_name
+	nix-store --query $(nix-instantiate $root $build_args -A unvanquished-dpk 2>/dev/null) > $datadir/deployed_dpk/$server_name
+	nix-store --query $(nix-instantiate $root $build_args -A server           2>/dev/null) > $datadir/deployed_server/$server_name
+
 	if [ ! -L "$old_bin" ] || [ ! -L "$old_dpk" ] || \
 	   [ "$(readlink $new_bin)" != "$(readlink $old_bin)" ] || \
 	   [ "$(readlink $new_dpk)" != "$(readlink $old_dpk)" ]; then
@@ -245,7 +254,47 @@ restart_all() {
 		local homepath="$homepaths/$server_name"
 		restart_instance "$server_name" "$homepath"
 	done
+}
 
+print_status() {
+	calculate_repo_info
+
+	echo "Existing servers"
+	declare -a existing_servers
+	for existing_server in $datadir/deployed_server/*; do
+		local existing_server="$(basename "$existing_server")"
+		existing_servers+=("$existing_server")
+		daemon="$(cat "$datadir/deployed_daemon/$existing_server")"
+
+		printf "\t%s: " "$existing_server"
+		if pgrep "$daemon" --full --list-full --runstates t >/dev/null; then
+			printf "GDB (trapped)\n"
+		elif pgrep "$daemon" --full --list-full --runstates S | cut -d ' ' -f 2 | grep -q "$daemon"; then
+			printf "running\n"
+		elif pgrep "$daemon" --full --list-full | cut -d ' ' -f 2 | grep -q "$daemon"; then
+			printf "process exists but status unknown\n"
+		else
+			printf "not running\n"
+		fi
+	done
+
+	local none=y
+	for branch_name in $branches_to_build; do
+		local server_name="$(server_name "$branch_name")"
+		local server_exists=
+		for existing in "${existing_servers[@]}"; do
+			if [ "$server_name" = "$existing" ]; then
+				server_exists=y
+			fi
+		done
+
+		if [ "$server_exists" != y ]; then
+			[ "$none" = y ] && printf "\nBranch left to build:"
+			none=
+			printf " %s" "$branch_name"
+		fi
+	done
+	[ "$none" != y ] && printf "\n"
 }
 
 case "${1:-}" in
@@ -260,6 +309,9 @@ case "${1:-}" in
 		;;
 	restart_all)
 		restart_all
+		;;
+	status)
+		print_status
 		;;
 	*)
 		printf "Invalid invocation\n\n\tusage: %s fetch|compile|deploy\n\n" "$0"
