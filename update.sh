@@ -156,6 +156,8 @@ compile_instance() {
 }
 
 compile_instances() {
+	calculate_repo_info
+
 	debug "Building these branches: %s\n\n" "$(printf "%s " $branches_to_build)"
 
 	for branch_name in $branches_to_build; do
@@ -207,6 +209,8 @@ deploy_instance() {
 }
 
 deploy_instances() {
+	calculate_repo_info
+
 	for branch_name in $branches_to_build; do
 		deploy_instance "$branch_name"
 	done
@@ -230,6 +234,8 @@ restart_instance() {
 }
 
 restart_all() {
+	calculate_repo_info
+
 	for branch_name in $branches_to_build; do
 		local branch_name="$1"
 		local branch_shortname="${branch_name%/*}"
@@ -245,16 +251,13 @@ case "${1:-}" in
 		fetch_branches
 		;;
 	compile)
-		calculate_repo_info
 		compile_instances
 		;;
 	deploy)
-		calculate_repo_info
 		deploy_instances
 		;;
 	restart_all)
-		calculate_repo_info
-		deploy_instances
+		restart_all
 		;;
 	*)
 		printf "Invalid invocation\n\n\tusage: %s fetch|compile|deploy\n\n" "$0"
