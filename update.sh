@@ -218,6 +218,11 @@ deploy_instance() {
 		rm $new_bin
 		rm $new_dpk
 	fi
+
+	if ! tmux -L testing-server has-session -t serv-$server_name &>/dev/null; then
+		printf "instance %s crashed. attempting restart\n" "$server_name" 1>&2
+		restart_instance "$server_name" "$homepath"
+	fi
 }
 
 deploy_instances() {
