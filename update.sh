@@ -295,6 +295,24 @@ print_status() {
 		fi
 	done
 	[ "$none" != y ] && printf "\n"
+
+	none=y
+	for existing in "${existing_servers[@]}"; do
+		local should_exist=
+		for branch_name in $branches_to_build; do
+			local server_name="$(server_name "$branch_name")"
+			if [ "$server_name" = "$existing" ]; then
+				should_exist=y
+			fi
+		done
+
+		if [ "$should_exist" != y ]; then
+			[ "$none" = y ] && printf "\nOld servers that should be deleted: "
+			none=
+			printf " %s" "$branch_name"
+		fi
+	done
+	[ "$none" != y ] && printf "\n"
 }
 
 case "${1:-}" in
