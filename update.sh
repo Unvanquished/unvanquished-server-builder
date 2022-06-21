@@ -337,15 +337,15 @@ case "${1:-}" in
 		;;
 	*)
 		printf "Invalid invocation\n\n\tusage: %s fetch|compile|deploy\n\n" "$0"
-		printf "fetch:   Grab the GitHub JSON files for the API\n"
-		printf "compile: Download and compile the sources\n"
-		printf "deploy:  Launch all the new instances.\n"
-		printf "             \`deploy\` will:\n"
-		printf "               * Stop the outdated instances that have been updated\n"
-		printf "               * Start the new ones\n"
-		printf "               * Copy the pakpath for the http server\n"
-		printf "             Note that it *won't* stop or remove a deleted instance\n"
-		printf "restart:  Stop and restart all servers.\n"
-		printf "             Note that it *won't* stop a deleted server\n"
+		printf "fetch:       Grab the GitHub JSON files for the API\n"
+		printf "compile:     Download and compile the sources\n"
+		printf "deploy:      Launch all the new instances.\n"
+		printf "                 \`deploy\` will:\n"
+		printf "                   * Stop the outdated instances that have been updated\n"
+		printf "                   * Start the new ones\n"
+		printf "                   * Copy the pakpath for the http server\n"
+		printf "                 Note that it *won't* stop or remove a deleted instance\n"
+		printf "restart_all: Stop and restart all servers.\n"
+		printf "                 Note that it *won't* stop a deleted server\n"
 		;;
 esac
