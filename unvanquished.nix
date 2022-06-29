@@ -3,6 +3,7 @@
 , daemon-source
 , nacl-hacks-4
 , nacl-hacks-5
+, nacl-hacks-6
 # Those are here only because cmake doesn't have options to build
 # only the sgame dll
 , libGL, geoip, lua5, pkg-config, meson
@@ -27,14 +28,17 @@ stdenv.mkDerivation {
 
     mkdir daemon/external_deps/linux64-${nacl-hacks-4.binary-deps-version}/
     mkdir daemon/external_deps/linux64-${nacl-hacks-5.binary-deps-version}/
+    mkdir daemon/external_deps/linux64-${nacl-hacks-6.binary-deps-version}/
     cp ${nacl-hacks-4.unvanquished-binary-deps}/* daemon/external_deps/linux64-${nacl-hacks-4.binary-deps-version} -r
     cp ${nacl-hacks-5.unvanquished-binary-deps}/* daemon/external_deps/linux64-${nacl-hacks-5.binary-deps-version} -r
+    cp ${nacl-hacks-6.unvanquished-binary-deps}/* daemon/external_deps/linux64-${nacl-hacks-6.binary-deps-version} -r
     chmod +w -R daemon/external_deps/linux64-${nacl-hacks-4.binary-deps-version}/
     chmod +w -R daemon/external_deps/linux64-${nacl-hacks-5.binary-deps-version}/
+    chmod +w -R daemon/external_deps/linux64-${nacl-hacks-6.binary-deps-version}/
 
     #FIXME: remove as this is duplicated with nacl-hacks
     interpreter="$(< "$NIX_CC/nix-support/dynamic-linker")"
-    for f in /build/source/daemon/external_deps/linux64-5/pnacl/bin/*; do
+    for f in /build/source/daemon/external_deps/linux64-*/pnacl/bin/*; do
       if [ -f "$f" ] && [ -x "$f" ]; then
         echo "Patching $f"
         patchelf --set-interpreter "$interpreter" "$f" || true
@@ -46,6 +50,7 @@ stdenv.mkDerivation {
     cmake
     nacl-hacks-4.unvanquished-binary-deps
     nacl-hacks-5.unvanquished-binary-deps
+    nacl-hacks-6.unvanquished-binary-deps
     (python.withPackages (ppkgs: [ppkgs.jinja2 ppkgs.pyyaml]))
   ];
   buildInputs = [

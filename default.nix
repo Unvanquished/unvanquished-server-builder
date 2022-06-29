@@ -60,6 +60,10 @@ in rec {
     binary-deps-version = "5";
     binary-deps-sha = "sha256-N/zkUhPFnU15QSe4NGmVLmhU7UslYrzz9ZUWuLbydyE=";
   };
+  nacl-hacks-6 = pkgs.callPackage ./nacl-hacks.nix {
+    binary-deps-version = "6";
+    binary-deps-sha = "sha256-ERfg89oTf9JTtv/qRnTRIzFP+zMpHT8W4WAIxqogy9E=";
+  };
 
 
   ######
@@ -68,15 +72,13 @@ in rec {
 
   daemon = pkgs.callPackage ./daemon.nix {
     source = srcs.daemon;
-    inherit nacl-hacks-4;
-    inherit nacl-hacks-5;
+    inherit nacl-hacks-4 nacl-hacks-5 nacl-hacks-6;
   };
 
   unvanquished-vms = pkgs.callPackage ./unvanquished.nix {
     source = srcs.unvanquished;
     daemon-source = srcs.daemon;
-    inherit nacl-hacks-4;
-    inherit nacl-hacks-5;
+    inherit nacl-hacks-4 nacl-hacks-5 nacl-hacks-6;
   };
 
   unvanquished-dpk = pkgs.callPackage ./dpk.nix {

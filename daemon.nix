@@ -5,6 +5,7 @@
 , source
 , nacl-hacks-4
 , nacl-hacks-5
+, nacl-hacks-6
 }:
 
 #
@@ -18,16 +19,20 @@ stdenv.mkDerivation rec {
   preConfigure = ''
     mkdir external_deps/linux64-${nacl-hacks-4.binary-deps-version}/
     mkdir external_deps/linux64-${nacl-hacks-5.binary-deps-version}/
+    mkdir external_deps/linux64-${nacl-hacks-6.binary-deps-version}/
     cp ${nacl-hacks-4.unvanquished-binary-deps}/* external_deps/linux64-${nacl-hacks-4.binary-deps-version} -r
     cp ${nacl-hacks-5.unvanquished-binary-deps}/* external_deps/linux64-${nacl-hacks-5.binary-deps-version} -r
+    cp ${nacl-hacks-6.unvanquished-binary-deps}/* external_deps/linux64-${nacl-hacks-6.binary-deps-version} -r
     chmod +w -R external_deps/linux64-${nacl-hacks-4.binary-deps-version}/
     chmod +w -R external_deps/linux64-${nacl-hacks-5.binary-deps-version}/
+    chmod +w -R external_deps/linux64-${nacl-hacks-6.binary-deps-version}/
   '';
 
   nativeBuildInputs = [
     cmake
     nacl-hacks-4.unvanquished-binary-deps
     nacl-hacks-5.unvanquished-binary-deps
+    nacl-hacks-6.unvanquished-binary-deps
     (python.withPackages (ppkgs: [ppkgs.jinja2 ppkgs.pyyaml]))
   ];
   buildInputs = [
