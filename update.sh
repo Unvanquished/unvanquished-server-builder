@@ -212,6 +212,8 @@ deploy_instance() {
 		mv $new_bin -T $old_bin
 		mv $new_dpk -T $old_dpk
 
+		deployed_instances+=("$server_name")
+
 		restart_instance "$server_name" "$homepath"
 	else
 		printf "no deploy needed.\n" 1>&2
@@ -338,7 +340,19 @@ case "${1:-}" in
 		compile_instances
 		;;
 	deploy)
+		declare -ag deployed_instances
 		deploy_instances
+		first=1
+		message='\x0303Deployed\x0399 instances'
+		for instance in "${deployed_instances[@]}"; do
+			if [ -n "$first" ]; then
+				message="$message $instance"
+				first=""
+			else
+				message="$message, $instance"
+			fi
+		done
+		[ -z "$first" ] && sudo -u overmind /home/overmind/msg '#unvanquished-dev' "$message"
 		;;
 	restart_all)
 		restart_all
