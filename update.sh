@@ -270,6 +270,24 @@ find_server() {
 	pgrep "$daemon" --full --list-full "$@" | grep "^[[:digit:]]\+ $daemon" | grep "$homepath "
 }
 
+print_server_status() {
+	server_name="$1"
+	local daemon="$(cat "$datadir/deployed_daemon/$server_name")"
+	local process
+
+	if find_server "$daemon" "$server_name" --runstates t; then
+		printf "GDB (trapped)\n"
+	elif process=$(find_server "$daemon" "$server_name" --runstates S); then
+		local pid="$(cut -f1 -d' ' <<<"$process")"
+		local port="$(lsof -n -P -p "$pid" -a -iUDP | grep UDP | head -n1 | cut -f2 -d:)"
+		printf "running, listening on port %s\n" "$port"
+	elif find_server "$daemon" "$server_name"; then
+		printf "process exists but status unknown\n"
+	else
+		printf "not running\n"
+	fi
+}
+
 print_status() {
 	calculate_repo_info
 
@@ -278,21 +296,9 @@ print_status() {
 	for existing_server in $datadir/deployed_server/*; do
 		local existing_server="$(basename "$existing_server")"
 		existing_servers+=("$existing_server")
-		local daemon="$(cat "$datadir/deployed_daemon/$existing_server")"
-		local process
 
 		printf "\t%s: " "$existing_server"
-		if find_server "$daemon" "$existing_server" --runstates t; then
-			printf "GDB (trapped)\n"
-		elif process=$(find_server "$daemon" "$existing_server" --runstates S); then
-			local pid="$(cut -f1 -d' ' <<<"$process")"
-			local port="$(lsof -n -P -p "$pid" -a -iUDP | grep UDP | head -n1 | cut -f2 -d:)"
-			printf "running, listening on port %s\n" "$port"
-		elif find_server "$daemon" "$existing_server"; then
-			printf "process exists but status unknown\n"
-		else
-			printf "not running\n"
-		fi
+		print_server_status "$existing_server"
 	done
 
 	local none=y
