@@ -346,19 +346,21 @@ case "${1:-}" in
 		compile_instances
 		;;
 	deploy)
-		declare -ag deployed_instances
+		deployed_instances=()
 		deploy_instances
 		first=1
-		message='\x0303Deployed\x0399 instances'
-		for instance in "${deployed_instances[@]}"; do
-			if [ -n "$first" ]; then
-				message="$message $instance"
-				first=""
-			else
-				message="$message, $instance"
-			fi
-		done
-		[ -z "$first" ] && sudo -u overmind /home/overmind/msg '#unvanquished-dev' "$message"
+		if [ "${#deployed_instances[@]}" -gt 0 ]; then
+			message='\x0303Deployed\x0399 instances'
+			for instance in "${deployed_instances[@]}"; do
+				if [ -n "$first" ]; then
+					message="$message $instance"
+					first=""
+				else
+					message="$message, $instance"
+				fi
+			done
+			sudo -u overmind /home/overmind/msg '#unvanquished-dev' "$message"
+		fi
 		;;
 	restart_all)
 		restart_all
