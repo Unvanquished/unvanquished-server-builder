@@ -102,6 +102,7 @@ in rec {
         ${bubblewrap}/bin/bwrap \
             --unshare-all --share-net \
             --ro-bind /nix /nix \
+            --ro-bind /etc/resolv.conf /etc/resolv.conf \
             --ro-bind ${pakpath} ${pakpath} \
             --ro-bind /var/www/cdn.unvanquished.net/unvanquished_0.52.1/pkg /var/www/cdn.unvanquished.net/unvanquished_0.52.1/pkg \
             --bind ${homepath} ${homepath} \
