@@ -67,6 +67,6 @@ each file. `default.nix` is the entry point.
 2. Install bash, tmux, curl, jq and pgrep.
 
 You don't need a GitHub API key, this updates slowly enough not to hit the
-github API limit for unauthenticated users. I you could update the curl
+github API limit for unauthenticated users. I guess you could update the curl
 commands if you need more frequent updates or if you want to extend this to
 include more repos.
