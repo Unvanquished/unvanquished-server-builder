@@ -87,6 +87,11 @@ server_name() {
 	printf "%s" "${branch_shortname/\//-}"
 }
 
+tmux_session_name() {
+	local server_name="$1"
+	printf "serv-%s\n" "$server_name" | sed 's/\./-/g'
+}
+
 # outputs to 3 global variables
 calculate_repo_info() {
 	declare -Ag branches
@@ -119,6 +124,7 @@ calculate_build_arguments() {
 	printf "%s " --argstr servername "$server_name"
 	printf "%s " --argstr branchname "$branch_name"
 	printf "%s " --argstr homepath "$homepath"
+	printf "%s " --argstr tmux-session-name "$(tmux_session_name "$server_name")"
 	for repo in $repos; do
 		local repo_shortname="${repo##*/}"
 		repo_shortname="${repo_shortname/./-}"
@@ -221,7 +227,7 @@ deploy_instance() {
 		rm $new_dpk
 	fi
 
-	if ! tmux -L testing-server has-session -t serv-$server_name &>/dev/null; then
+	if ! tmux -L testing-server has-session -t $(tmux_session_name "$server_name") &>/dev/null; then
 		printf "instance %s crashed. attempting restart\n" "$server_name" 1>&2
 		restart_instance "$server_name" "$homepath"
 	fi
@@ -241,10 +247,10 @@ restart_instance() {
 	local server_name="$1"
 	local homepath="$2"
 
-	if tmux -L testing-server has-session -t serv-$server_name &>/dev/null; then
+	if tmux -L testing-server has-session -t $(tmux_session_name "$server_name") &>/dev/null; then
 		printf "killing %s\n" "$server_name" 1>&2
 		rm $homepath/lock-server -f  # useful for when daemon crashed
-		tmux -L testing-server kill-session -t serv-$server_name
+		tmux -L testing-server kill-session -t $(tmux_session_name "$server_name")
 	fi
 
 	# this will start the new server in tmux

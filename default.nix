@@ -8,6 +8,7 @@
 , branchname
 , pakpath
 , homepath
+, tmux-session-name
 # source info
 , Daemon
 , Daemon-commit
@@ -102,7 +103,7 @@ in rec {
         set -- +devmap chasm +bot fill 4
     fi
 
-    exec tmux -L testing-server new-session -s serv-${servername} -d \
+    exec tmux -L testing-server new-session -s ${tmux-session-name} -d \
         ${bubblewrap}/bin/bwrap \
             --unshare-all --share-net \
             --ro-bind /nix /nix \
