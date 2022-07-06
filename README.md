@@ -53,7 +53,7 @@ Note you can run the commands while the server is running. Every command except
 is running. I think that the worst that can happen is that `update.sh deploy`
 can give incorrect output if run twice at the same time.
 
-### `\*.nix`
+### `*.nix`
 
 You are not really supposed to call these files manually. If you want to
 understand how they work, there should be a nice comment at the beginning of
