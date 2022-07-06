@@ -1,3 +1,8 @@
+#
+# This makes a dpk (zip) containing the VM files and the rest of
+# unvanquished_src.dpkdir
+#
+
 { lib, stdenv, p7zip
 , source
 , unvanquished-vms

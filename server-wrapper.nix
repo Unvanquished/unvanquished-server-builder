@@ -1,3 +1,7 @@
+#
+# A large wrapper that brings the server together from its pieces.
+#
+
 { writeScript, bubblewrap, bash, gdb
 , srcs
 , servername
@@ -10,7 +14,6 @@
 , homepath
 }:
 
-# This is a huge-ass wrapper
 writeScript "unvanquished-server" ''
   #!/bin/sh
 

@@ -1,3 +1,7 @@
+#
+# Builds the gamelogic files, both as a nacl binary and a dll file
+#
+
 { lib, stdenv, cmake, zlib, ncurses, python
 , source
 , daemon-source
@@ -10,10 +14,6 @@
 , nettle, curl, SDL2, freetype, glew, openal
 , libopus, opusfile, libogg, libvorbis, libjpeg, libwebp, libpng
 }:
-
-#
-# this is building the nacl gamelogic files
-#
 
 stdenv.mkDerivation {
   name = "unvanquished-nacl-vms";

@@ -1,8 +1,9 @@
 #
 # This files brings together all the parts managed by nix. That's the one
-# called by the `nix` commands. It includes dev tools and handles the build of
-# the engine and game.
+# called by the `nix` commands. It handles the build of the engine, game and
+# dpk.
 #
+
 { pkgs ? import <nixpkgs> {}
 , servername
 , branchname

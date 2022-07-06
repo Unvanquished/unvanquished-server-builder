@@ -1,3 +1,7 @@
+#
+# This builds the daemon engine
+#
+
 { lib, stdenv
 , cmake, gmp, libGL, zlib, ncurses, geoip, lua5
 , nettle, curl, SDL2, freetype, glew, openal, libopus, opusfile, libogg
@@ -7,10 +11,6 @@
 , nacl-hacks-5
 , nacl-hacks-6
 }:
-
-#
-# This builds the daemon engine
-#
 
 stdenv.mkDerivation rec {
   name = "daemon";
