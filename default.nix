@@ -83,7 +83,7 @@ in rec {
     inherit nacl-hacks-4 nacl-hacks-5 nacl-hacks-6;
   };
 
-  unvanquished-dpk = pkgs.callPackage ./dpk.nix {
+  unvanquished-dpk = pkgs.callPackage ./unv-dpk.nix {
     source = srcs.unvanquished_dpk;
     inherit unvanquished-vms;
     inherit filename;
