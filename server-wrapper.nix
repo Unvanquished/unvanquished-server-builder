@@ -22,6 +22,11 @@ writeScript "unvanquished-server" ''
       GDB="${gdb}/bin/gdb -x $HOME/unv-testing-server/gdbinit.txt --args"
   fi
 
+  # read this binary's command line from a config file, if it exists
+  if [ $# -eq 0 ] && [ -f "${srcs.unvanquished}/dist/configs/cmdline.txt" ]; then
+      set -- $(cat "${srcs.unvanquished}/dist/configs/cmdline.txt")
+  fi
+
   exec tmux -L testing-server new-session -s ${tmux-session-name} -d \
       ${bubblewrap}/bin/bwrap \
           --unshare-all --share-net \
