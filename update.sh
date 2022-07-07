@@ -214,13 +214,18 @@ deploy_instance() {
 	if [ ! -L "$old_bin" ] || [ ! -L "$old_dpk" ] || \
 	   [ "$(readlink $new_bin)" != "$(readlink $old_bin)" ] || \
 	   [ "$(readlink $new_dpk)" != "$(readlink $old_dpk)" ]; then
-		printf "deploying new version of %s\n" "$branch_name" 1>&2
-		mv $new_bin -T $old_bin
-		mv $new_dpk -T $old_dpk
+		local port="$(find_server_port "$server_name")"
+		if [ -z "$port" ] || $root/can_restart_server.sh localhost:$port; then
+			printf "deploying new version of %s.\n" "$branch_name" 1>&2
+			mv $new_bin -T $old_bin
+			mv $new_dpk -T $old_dpk
 
-		deployed_instances+=("$server_name")
+			deployed_instances+=("$server_name")
 
-		restart_instance "$server_name" "$homepath"
+			restart_instance "$server_name" "$homepath"
+		else
+			printf "delaying update as a player is in a team.\n" "$branch_name" 1>&2
+		fi
 	else
 		printf "no deploy needed.\n" 1>&2
 		rm $new_bin
@@ -268,26 +273,34 @@ restart_all() {
 	done
 }
 
+# matches a server that has this homepath and this daemon engine version
 find_server() {
-	local daemon="$1"
-	local server_name="$2"
-	shift; shift
+	local server_name="$1"
+	shift
+	local daemon="$(cat "$datadir/deployed_daemon/$server_name")"
 	local homepath="$homepaths/$server_name"
 	pgrep "$daemon" --full --list-full "$@" | grep "^[[:digit:]]\+ $daemon" | grep "$homepath "
 }
 
-print_server_status() {
-	server_name="$1"
-	local daemon="$(cat "$datadir/deployed_daemon/$server_name")"
-	local process
+# outputs the port of a running server on stdout
+find_server_port() {
+	local server_name="$1"
+	local process pid
+	if process=$(find_server "$server_name" --runstates S); then
+		if pid="$(cut -f1 -d' ' <<<"$process")"; then
+			lsof -n -P -p "$pid" -a -iUDP | grep UDP | head -n1 | cut -f2 -d: | tr -d ' ' || true
+		fi
+	fi
+}
 
-	if find_server "$daemon" "$server_name" --runstates t; then
+print_server_status() {
+	local server_name="$1"
+	local port
+	if find_server "$server_name" --runstates t; then
 		printf "GDB (trapped)\n"
-	elif process=$(find_server "$daemon" "$server_name" --runstates S); then
-		local pid="$(cut -f1 -d' ' <<<"$process")"
-		local port="$(lsof -n -P -p "$pid" -a -iUDP | grep UDP | head -n1 | cut -f2 -d:)"
+	elif port=$(find_server_port "$server_name"); then
 		printf "running, listening on port %s\n" "$port"
-	elif find_server "$daemon" "$server_name"; then
+	elif find_server "$server_name"; then
 		printf "process exists but status unknown\n"
 	else
 		printf "not running\n"
