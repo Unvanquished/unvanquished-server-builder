@@ -288,8 +288,12 @@ find_server_port() {
 	local process pid
 	if process=$(find_server "$server_name" --runstates S); then
 		if pid="$(cut -f1 -d' ' <<<"$process")"; then
-			lsof -n -P -p "$pid" -a -iUDP | grep UDP | head -n1 | cut -f2 -d: | tr -d ' ' || true
+			lsof -n -P -p "$pid" -a -iUDP | grep UDP | head -n1 | cut -f2 -d: | tr -d ' '
+		else
+			return 1
 		fi
+	else
+		return 1
 	fi
 }
 
