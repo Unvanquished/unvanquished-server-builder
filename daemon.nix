@@ -58,6 +58,7 @@ stdenv.mkDerivation rec {
   ];
 
   cmakeFlags = [
+    "-DCMAKE_BUILD_TYPE=RelWithDebInfo"
     "-DBUILD_TTY_CLIENT=FALSE"
     "-DBUILD_CLIENT=FALSE"
     "-DUSE_HARDENING=TRUE"
