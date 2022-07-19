@@ -300,11 +300,11 @@ find_server_port() {
 print_server_status() {
 	local server_name="$1"
 	local port
-	if find_server "$server_name" --runstates t; then
+	if find_server "$server_name" --runstates t >/dev/null; then
 		printf "GDB (trapped)\n"
 	elif port=$(find_server_port "$server_name"); then
 		printf "running, listening on port %s\n" "$port"
-	elif find_server "$server_name"; then
+	elif find_server "$server_name" >/dev/null; then
 		printf "process exists but status unknown\n"
 	else
 		printf "not running\n"
