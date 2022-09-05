@@ -12,7 +12,7 @@ testing_branch_suffix="/testing"
 experimental_branch_suffix="/experimental"
 
 testing_base_branch="master"
-experimental_base_branch="0.53.0/sync"
+experimental_base_branch="master"
 
 repos="DaemonEngine/Daemon Unvanquished/Unvanquished UnvanquishedAssets/unvanquished_src.dpkdir"
 
