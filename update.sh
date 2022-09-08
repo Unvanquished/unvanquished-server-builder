@@ -8,9 +8,11 @@ set -o pipefail
 
 
 # This allows handling the base branches branches 0.53.0
+deploy_branch_suffix="/deploy"
 testing_branch_suffix="/testing"
 experimental_branch_suffix="/experimental"
 
+deploy_base_branch="master"
 testing_base_branch="master"
 experimental_base_branch="master"
 
@@ -58,7 +60,7 @@ fetch_branches() {
 get_branches() {
 	local repo="$1"
 	cat "$datadir/${repo/\//-}.json" \
-		| jq "map(select(.name | endswith(\"$testing_branch_suffix\") or endswith(\"$experimental_branch_suffix\") or . == \"$testing_base_branch\" or . == \"$experimental_base_branch\"))"
+		| jq "map(select(.name | endswith(\"$deploy_branch_suffix\") or endswith(\"$testing_branch_suffix\") or endswith(\"$experimental_branch_suffix\") or . == \"$testing_base_branch\" or . == \"$experimental_base_branch\"))"
 }
 
 get_branches_names() {
@@ -114,7 +116,9 @@ calculate_build_arguments() {
 	local homepath="$homepaths/$server_name"
 
 	local base_branch
-	if grep -q "$experimental_branch_suffix\$" <<<"$branch_name"; then
+	if grep -q "$deploy_branch_suffix\$" <<<"$branch_name"; then
+		base_branch="$deploy_base_branch"
+	elif grep -q "$experimental_branch_suffix\$" <<<"$branch_name"; then
 		base_branch="$experimental_base_branch"
 	else
 		base_branch="$testing_base_branch"
