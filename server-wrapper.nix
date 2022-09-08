@@ -56,7 +56,6 @@ writeScript "unvanquished-server" ''
                       -pakpath /var/www/cdn.unvanquished.net/unvanquished_0.52.1/pkg \
                       -set fs_extrapaks experimental/${servername}/${filename} \
                       +exec server.cfg \
-                      +set server.private 1 \
                       +set sv_hostname "^1Experimental ^3Development Server - ${servername}" \
                       +set g_motd "^2See the ${branchname} branch on GitHub." \
                       +set sv_allowdownload 1 \
