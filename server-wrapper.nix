@@ -33,7 +33,7 @@ writeScript "unvanquished-server" ''
           --ro-bind /nix /nix \
           --ro-bind /etc/resolv.conf /etc/resolv.conf \
           --ro-bind ${pakpath} ${pakpath} \
-          --ro-bind /var/www/cdn.unvanquished.net/unvanquished_0.52.1/pkg /var/www/cdn.unvanquished.net/unvanquished_0.52.1/pkg \
+          --ro-bind /var/www/dl.unvanquished.net/pkg /pkg \
           --bind ${homepath} ${homepath} \
           --ro-bind ~/unvanquished-server/homepath/game/admin.dat ${homepath}/game/admin.dat \
           --ro-bind ${srcs.unvanquished}/dist/configs/config ${homepath}/config \
@@ -53,7 +53,7 @@ writeScript "unvanquished-server" ''
                       -set vm.sgame.type 3 \
                       -set net_port 27990 \
                       -pakpath ${pakpath} \
-                      -pakpath /var/www/cdn.unvanquished.net/unvanquished_0.52.1/pkg \
+                      -pakpath /pkg \
                       -set fs_extrapaks experimental/${servername}/${filename} \
                       +exec server.cfg \
                       +set sv_hostname "^1Experimental ^3Development Server - ${servername}" \
