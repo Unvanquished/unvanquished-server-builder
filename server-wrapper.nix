@@ -54,7 +54,7 @@ writeScript "unvanquished-server" ''
                       -set net_port 27990 \
                       -pakpath ${pakpath} \
                       -pakpath /pkg \
-                      -set fs_extrapaks experimental/${servername}/${filename} \
+                      -set fs_extrapaks exp/${servername}/${filename} \
                       +exec server.cfg \
                       +set sv_hostname "^1Experimental ^3Development Server - ${servername}" \
                       +set g_motd "^2See the ${branchname} branch on GitHub." \
