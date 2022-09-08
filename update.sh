@@ -355,7 +355,7 @@ print_status() {
 		if [ "$should_exist" != y ]; then
 			[ "$none" = y ] && printf "\nOld servers that should be deleted: "
 			none=
-			printf " %s" "$branch_name"
+			printf " %s" "$existing"
 		fi
 	done
 	[ "$none" != y ] && printf "\n"
