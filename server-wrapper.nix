@@ -36,6 +36,7 @@ writeScript "unvanquished-server" ''
           --ro-bind /var/www/dl.unvanquished.net/pkg /pkg \
           --bind ${homepath} ${homepath} \
           --ro-bind ~/unvanquished-server/homepath/game/admin.dat ${homepath}/game/admin.dat \
+          --ro-bind ${srcs.unvanquished}/dist/configs/game/layouts ${homepath}/game/layouts \
           --ro-bind ${srcs.unvanquished}/dist/configs/config ${homepath}/config \
           --ro-bind ${srcs.unvanquished}/dist/configs/game/maprotation.cfg ${homepath}/game/maprotation.cfg \
           --ro-bind ~/unv-testing-server/gdbinit.txt ~/unv-testing-server/gdbinit.txt \
