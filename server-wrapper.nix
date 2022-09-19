@@ -34,6 +34,7 @@ writeScript "unvanquished-server" ''
           --ro-bind /etc/resolv.conf /etc/resolv.conf \
           --ro-bind ${pakpath} ${pakpath} \
           --ro-bind /var/www/dl.unvanquished.net/pkg /pkg \
+          --ro-bind /home/sweet/public_html/pkg/ /pkg2 \
           --bind ${homepath} ${homepath} \
           --ro-bind ~/unvanquished-server/homepath/game/admin.dat ${homepath}/game/admin.dat \
           --ro-bind ${srcs.unvanquished}/dist/configs/game/layouts ${homepath}/game/layouts \
@@ -55,6 +56,7 @@ writeScript "unvanquished-server" ''
                       -set net_port 27990 \
                       -pakpath ${pakpath} \
                       -pakpath /pkg \
+                      -pakpath /pkg2 \
                       -set fs_extrapaks exp/${servername}/${filename} \
                       +exec server.cfg \
                       +set sv_hostname "^1Experimental ^3Development Server - ${servername}" \
