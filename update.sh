@@ -249,7 +249,7 @@ deploy_instances() {
 		deploy_instance "$branch_name"
 	done
 
-	rsync -r --links $subpakpath/ $pakpath/exp/
+	rsync -r --links --delete $subpakpath/ $pakpath/exp/
 }
 
 restart_instance() {
