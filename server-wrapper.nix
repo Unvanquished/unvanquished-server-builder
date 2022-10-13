@@ -27,6 +27,14 @@ writeScript "unvanquished-server" ''
       set -- $(cat "${srcs.unvanquished}/dist/configs/cmdline.txt")
   fi
 
+  # Grab server's config from the source code, if available
+  BWRAP_ARGS=""
+  for src_path in game/layouts config game/maprotation.cfg; do
+      if [ -e ${srcs.unvanquished}/dist/configs/$src_path ]; then
+          BWRAP_ARGS="$BWRAP_ARGS --ro-bind ${srcs.unvanquished}/dist/configs/$src_path ${homepath}/$src_path"
+      fi
+  done
+
   exec tmux -L testing-server new-session -s ${tmux-session-name} -d \
       ${bubblewrap}/bin/bwrap \
           --unshare-all --share-net \
@@ -37,10 +45,8 @@ writeScript "unvanquished-server" ''
           --ro-bind /home/sweet/public_html/pkg/ /pkg2 \
           --bind ${homepath} ${homepath} \
           --ro-bind ~/unvanquished-server/homepath/game/admin.dat ${homepath}/game/admin.dat \
-          --ro-bind ${srcs.unvanquished}/dist/configs/game/layouts ${homepath}/game/layouts \
-          --ro-bind ${srcs.unvanquished}/dist/configs/config ${homepath}/config \
-          --ro-bind ${srcs.unvanquished}/dist/configs/game/maprotation.cfg ${homepath}/game/maprotation.cfg \
           --ro-bind ~/unv-testing-server/gdbinit.txt ~/unv-testing-server/gdbinit.txt \
+          $BWRAP_ARGS \
           --tmpfs /tmp \
           --proc /proc \
           --dev /dev \
