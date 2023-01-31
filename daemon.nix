@@ -7,9 +7,7 @@
 , nettle, curl, SDL2, freetype, glew, openal, libopus, opusfile, libogg
 , libvorbis, libjpeg, libwebp, libpng, python
 , source
-, nacl-hacks-4
-, nacl-hacks-5
-, nacl-hacks-6
+, nacl-hacks-8
 }:
 
 stdenv.mkDerivation rec {
@@ -17,22 +15,14 @@ stdenv.mkDerivation rec {
   src = source;
 
   preConfigure = ''
-    mkdir external_deps/linux64-${nacl-hacks-4.binary-deps-version}/
-    mkdir external_deps/linux64-${nacl-hacks-5.binary-deps-version}/
-    mkdir external_deps/linux64-${nacl-hacks-6.binary-deps-version}/
-    cp ${nacl-hacks-4.unvanquished-binary-deps}/* external_deps/linux64-${nacl-hacks-4.binary-deps-version} -r
-    cp ${nacl-hacks-5.unvanquished-binary-deps}/* external_deps/linux64-${nacl-hacks-5.binary-deps-version} -r
-    cp ${nacl-hacks-6.unvanquished-binary-deps}/* external_deps/linux64-${nacl-hacks-6.binary-deps-version} -r
-    chmod +w -R external_deps/linux64-${nacl-hacks-4.binary-deps-version}/
-    chmod +w -R external_deps/linux64-${nacl-hacks-5.binary-deps-version}/
-    chmod +w -R external_deps/linux64-${nacl-hacks-6.binary-deps-version}/
+    mkdir external_deps/linux-amd64-default_${nacl-hacks-8.binary-deps-version}/
+    cp ${nacl-hacks-8.unvanquished-binary-deps}/* external_deps/linux-amd64-default_${nacl-hacks-8.binary-deps-version} -r
+    chmod +w -R external_deps/linux-amd64-default_${nacl-hacks-8.binary-deps-version}/
   '';
 
   nativeBuildInputs = [
     cmake
-    nacl-hacks-4.unvanquished-binary-deps
-    nacl-hacks-5.unvanquished-binary-deps
-    nacl-hacks-6.unvanquished-binary-deps
+    nacl-hacks-8.unvanquished-binary-deps
     (python.withPackages (ppkgs: [ppkgs.jinja2 ppkgs.pyyaml]))
   ];
   buildInputs = [
@@ -73,7 +63,7 @@ stdenv.mkDerivation rec {
     for f in nacl_loader nacl_helper_bootstrap; do
       install -Dm0755 -t $out/lib/ $f
     done
-    install -Dm0644 -t $out/lib/ irt_core-x86_64.nexe
+    install -Dm0644 -t $out/lib/ irt_core-amd64.nexe
 
     install -Dm0755 -t $out/bin/ daemonded
 

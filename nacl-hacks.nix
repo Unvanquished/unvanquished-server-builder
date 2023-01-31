@@ -12,7 +12,7 @@ rec {
 
   # this one is here because of the custom toolchain NaCl uses
   unvanquished-binary-deps = fetchzip {
-    url = "https://dl.unvanquished.net/deps/linux64-${binary-deps-version}.tar.bz2";
+    url = "https://dl.unvanquished.net/deps/linux-amd64-default_${binary-deps-version}.tar.xz";
     sha256 = binary-deps-sha;
   };
 }

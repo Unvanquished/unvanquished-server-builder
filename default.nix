@@ -54,17 +54,9 @@ in rec {
     };
   };
 
-  nacl-hacks-4 = pkgs.callPackage ./nacl-hacks.nix {
-    binary-deps-version = "4";
-    binary-deps-sha = "sha256-N/zkUhPFnU15QSe4NGmVLmhU7UslYrzz9ZUWuLbydyE=";
-  };
-  nacl-hacks-5 = pkgs.callPackage ./nacl-hacks.nix {
-    binary-deps-version = "5";
-    binary-deps-sha = "sha256-N/zkUhPFnU15QSe4NGmVLmhU7UslYrzz9ZUWuLbydyE=";
-  };
-  nacl-hacks-6 = pkgs.callPackage ./nacl-hacks.nix {
-    binary-deps-version = "6";
-    binary-deps-sha = "sha256-ERfg89oTf9JTtv/qRnTRIzFP+zMpHT8W4WAIxqogy9E=";
+  nacl-hacks-8 = pkgs.callPackage ./nacl-hacks.nix {
+    binary-deps-version = "8";
+    binary-deps-sha = "sha256-6r9j0HRMDC/7i8f4f5bBK4NmwsTpSChHrRWwz0ENAZo=";
   };
 
 
@@ -74,13 +66,13 @@ in rec {
 
   daemon = pkgs.callPackage ./daemon.nix {
     source = srcs.daemon;
-    inherit nacl-hacks-4 nacl-hacks-5 nacl-hacks-6;
+    inherit nacl-hacks-8;
   };
 
   unvanquished-vms = pkgs.callPackage ./unvanquished.nix {
     source = srcs.unvanquished;
     daemon-source = srcs.daemon;
-    inherit nacl-hacks-4 nacl-hacks-5 nacl-hacks-6;
+    inherit nacl-hacks-8;
   };
 
   unvanquished-dpk = pkgs.callPackage ./unv-dpk.nix {
