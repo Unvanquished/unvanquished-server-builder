@@ -22,7 +22,7 @@
 with pkgs;
 
 let
-  filename = "unv-${servername}";
+  filename = "unv";
 
 in rec {
   ######
