@@ -48,11 +48,11 @@ stdenv.mkDerivation rec {
   ];
 
   cmakeFlags = [
-    "-DCMAKE_BUILD_TYPE=RelWithDebInfo"
+    "-DCMAKE_BUILD_TYPE=Debug"
     "-DBUILD_TTY_CLIENT=FALSE"
     "-DBUILD_CLIENT=FALSE"
     "-DUSE_HARDENING=TRUE"
-    "-DUSE_LTO=TRUE"
+    "-DUSE_LTO=FALSE"
   ];
 
   dontStrip = true;
