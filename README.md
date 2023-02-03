@@ -1,29 +1,29 @@
 # Unvanquished Server Builder
 
-This is what powers the CD behind unvanquished testing servers. It is supposed
-to replace nightly too, eventually. It may be extended to run other, public
-servers in the future.
+This repository contains the automation the unables the unvanquished testing
+servers. It is supposed to replace nightly too, eventually. It may be extended
+to run other, public servers in the future.
+
+There is an instance deployed on unvanquished.net.
 
 ## What is built
 
-There is an instance deployed on unvanquished.net that query the availables
-branches in this official repos:
+The build automation in this repo monitors the following repos:
 
 * https://github.com/Unvanquished/Unvanquished/
 * https://github.com/UnvanquishedAssets/unvanquished\_src.dpkdir/
 * https://github.com/DaemonEngine/Daemon/
 
-And builds a server for every branch that is named either `\*/experimental`,
-`\*/testing` and `0.53.0/sync` in these repos.
+It will monitor these 3 repositories and build a server for each branch that is
+named either `*/deploy`, `*/experimental`, `*/testing` or `0.53.0/sync`. It
+will assemble a server out of the desired branch of each repo. If a branch with
+the same name is not available in the other repos, a fallback branch will be
+used instead: `experimental` branches fallback to `0.XX.Y/sync` (the exact name
+is updated manually) while `testing` branches fallback to `master`.
 
-Each server will be composed of the matching branch for each repo when it is
-available. If a branch is missing from a repo, then a `/experimental` branch will
-use the `0.53.0/sync` branch as a fallback; and a `/testing` branch will use
-the `master` branch as a fallback.
-
-This mean that if a branch is based on `master` you should use the `/testing`
-suffix, and if a branch is based on the next release branch, you must use the
-`/experimental` suffix.
+This mean that if a branch is based on `master` you should name it using the
+`/testing` suffix, and if a branch is based on the next release branch, you
+must use the `/experimental` suffix.
 
 ## When it built
 
