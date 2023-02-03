@@ -25,6 +25,9 @@ This mean that if a branch is based on `master` you should name it using the
 `/testing` suffix, and if a branch is based on the next release branch, you
 must use the `/experimental` suffix.
 
+The patterns matched in the "nobuild" file are excluded. This must be a regular
+expression suitable for grep.
+
 ## When it built
 
 Currently the [/start-updater.sh](/start-updater.sh) scripts checks if there

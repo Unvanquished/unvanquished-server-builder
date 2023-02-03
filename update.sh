@@ -106,7 +106,7 @@ calculate_repo_info() {
 	done
 
 	declare -g branches_to_build
-	branches_to_build=$( (for b in ${branches_names[@]}; do printf "%s\n" "$b"; done) | sort -u | grep -v '^master$' )
+	branches_to_build=$( (for b in ${branches_names[@]}; do printf "%s\n" "$b"; done) | sort -u | grep -v "$(cat "$root/nobuild")" )
 }
 
 # outputs the build args to stdout
