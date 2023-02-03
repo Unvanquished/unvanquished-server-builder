@@ -27,6 +27,12 @@ writeScript "unvanquished-server" ''
       set -- $(cat "${srcs.unvanquished}/dist/configs/cmdline.txt")
   fi
 
+  if [ -f "${srcs.unvanquished}/dist/configs/servername.txt" ]; then
+      SERVERNAME="$(cat "${srcs.unvanquished}/dist/configs/servername.txt")"
+  else
+      SERVERNAME="^1Experimental ^3Development Server - ${servername}"
+  fi
+
   # Grab server's config from the source code, if available
   BWRAP_ARGS=""
   for src_path in game/layouts config game/maprotation.cfg; do
@@ -65,7 +71,7 @@ writeScript "unvanquished-server" ''
                       -pakpath /pkg2 \
                       -set fs_extrapaks exp/${servername}/${filename} \
                       +exec server.cfg \
-                      +set sv_hostname "^1Experimental ^3Development Server - ${servername}" \
+                      +set sv_hostname "$SERVERNAME" \
                       +set g_motd "^2See the ${branchname} branch on GitHub." \
                       +set sv_allowdownload 1 \
                       +set sv_dl_maxRate 1000000 \
