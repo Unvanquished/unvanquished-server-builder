@@ -15,7 +15,7 @@
 }:
 
 writeScript "unvanquished-server" ''
-  #!/bin/sh
+  #!${bash}/bin/bash
 
   GDB=""
   if [ -z "$NO_GDB" ]; then
