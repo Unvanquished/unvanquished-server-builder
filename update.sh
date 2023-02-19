@@ -215,6 +215,10 @@ deploy_instance() {
 	nix-store --query $(nix-instantiate $root $build_args -A unvanquished-dpk 2>/dev/null) > $datadir/deployed_dpk/$server_name
 	nix-store --query $(nix-instantiate $root $build_args -A server           2>/dev/null) > $datadir/deployed_server/$server_name
 
+	# Rsync the *whole* pakpath so that it has what's needed to start the server
+	# TODO: maybe way to sync only what's needed? I think this is mostly ok though.
+	rsync -r --links --delete $subpakpath/ $pakpath/exp/
+
 	if [ ! -L "$old_bin" ] || [ ! -L "$old_dpk" ] || \
 	   [ "$(readlink $new_bin)" != "$(readlink $old_bin)" ] || \
 	   [ "$(readlink $new_dpk)" != "$(readlink $old_dpk)" ]; then
@@ -248,8 +252,6 @@ deploy_instances() {
 	for branch_name in $branches_to_build; do
 		deploy_instance "$branch_name"
 	done
-
-	rsync -r --links --delete $subpakpath/ $pakpath/exp/
 }
 
 restart_instance() {
