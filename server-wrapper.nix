@@ -14,7 +14,14 @@
 , homepath
 }:
 
-writeScript "unvanquished-server" ''
+let killerWrapper = writeScript "killer-wrapper" ''
+  #!${bash}/bin/bash
+  # Disabled for now
+  #/bin/sh -c "sleep 30; kill $$" &
+  exec "$@"
+  '';
+
+in writeScript "unvanquished-server" ''
   #!${bash}/bin/bash
 
   GDB=""
@@ -60,23 +67,24 @@ writeScript "unvanquished-server" ''
           --setenv PATH  "${bash}/bin" \
           --setenv SHELL "${bash}/bin/bash" \
           -- \
-              $GDB \
-                  "${daemon}/bin/daemonded" \
-                      -libpath ${unvanquished-vms} \
-                      -homepath ${homepath} \
-                      -set vm.sgame.type 3 \
-                      -set net_port 27990 \
-                      -pakpath ${pakpath} \
-                      -pakpath /pkg \
-                      -pakpath /pkg2 \
-                      -set fs_extrapaks exp/${servername}/${filename} \
-                      +exec server.cfg \
-                      +set sv_hostname "$SERVERNAME" \
-                      +set g_motd "^2See the ${branchname} branch on GitHub." \
-                      +set sv_allowdownload 1 \
-                      +set sv_dl_maxRate 1000000 \
-                      +set sv_wwwDownload 1 \
-                      +set sv_wwwBaseURL "users.unvanquished.net/~afontain/pkg/nightly" \
-                      +set sv_wwwFallbackURL "dl.unvanquished.net/pkg" \
-                      "$@"
+              ${killerWrapper} \
+                  $GDB \
+                      "${daemon}/bin/daemonded" \
+                          -libpath ${unvanquished-vms} \
+                          -homepath ${homepath} \
+                          -set vm.sgame.type 3 \
+                          -set net_port 27990 \
+                          -pakpath ${pakpath} \
+                          -pakpath /pkg \
+                          -pakpath /pkg2 \
+                          -set fs_extrapaks exp/${servername}/${filename} \
+                          +exec server.cfg \
+                          +set sv_hostname "$SERVERNAME" \
+                          +set g_motd "^2See the ${branchname} branch on GitHub." \
+                          +set sv_allowdownload 1 \
+                          +set sv_dl_maxRate 1000000 \
+                          +set sv_wwwDownload 1 \
+                          +set sv_wwwBaseURL "users.unvanquished.net/~afontain/pkg/nightly" \
+                          +set sv_wwwFallbackURL "dl.unvanquished.net/pkg" \
+                          "$@"
   ''
