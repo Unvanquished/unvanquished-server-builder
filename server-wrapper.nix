@@ -29,11 +29,6 @@ in writeScript "unvanquished-server" ''
       GDB="${gdb}/bin/gdb -x $HOME/unv-testing-server/gdbinit.txt --args"
   fi
 
-  # read this binary's command line from a config file, if it exists
-  if [ $# -eq 0 ] && [ -f "${srcs.unvanquished}/dist/configs/cmdline.txt" ]; then
-      set -- $(cat "${srcs.unvanquished}/dist/configs/cmdline.txt")
-  fi
-
   if [ -f "${srcs.unvanquished}/dist/configs/servername.txt" ]; then
       SERVERNAME="$(cat "${srcs.unvanquished}/dist/configs/servername.txt")"
   else
