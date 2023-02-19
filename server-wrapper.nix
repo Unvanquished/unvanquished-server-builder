@@ -78,5 +78,6 @@ in writeScript "unvanquished-server" ''
                           +set sv_wwwDownload 1 \
                           +set sv_wwwBaseURL "users.unvanquished.net/~afontain/pkg/nightly" \
                           +set sv_wwwFallbackURL "dl.unvanquished.net/pkg" \
+                          +exec server-overrides.cfg \
                           "$@"
   ''
