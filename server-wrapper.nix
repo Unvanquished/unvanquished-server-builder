@@ -24,11 +24,6 @@ let killerWrapper = writeScript "killer-wrapper" ''
 in writeScript "unvanquished-server" ''
   #!${bash}/bin/bash
 
-  GDB=""
-  if [ -z "$NO_GDB" ]; then
-      GDB="${gdb}/bin/gdb -x $HOME/unv-testing-server/gdbinit.txt --args"
-  fi
-
   if [ -f "${srcs.unvanquished}/dist/configs/servername.txt" ]; then
       SERVERNAME="$(cat "${srcs.unvanquished}/dist/configs/servername.txt")"
   else
@@ -65,7 +60,7 @@ in writeScript "unvanquished-server" ''
           --setenv SHELL "${bash}/bin/bash" \
           -- \
               ${killerWrapper} \
-                  $GDB \
+                  ${gdb}/bin/gdb -x $HOME/unv-testing-server/gdbinit.txt --args \
                       "${daemon}/bin/daemonded" \
                           -libpath ${unvanquished-vms} \
                           -homepath ${homepath} \
