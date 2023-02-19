@@ -48,7 +48,7 @@ writeScript "unvanquished-server" ''
           --ro-bind /etc/resolv.conf /etc/resolv.conf \
           --ro-bind ${pakpath} ${pakpath} \
           --ro-bind /var/www/dl.unvanquished.net/pkg /pkg \
-          --ro-bind /home/sweet/public_html/pkg/ /pkg2 \
+          --ro-bind /home/sweet/public_html/pkg /pkg2 \
           --bind ${homepath} ${homepath} \
           --ro-bind ~/unvanquished-server/homepath/game/admin.dat ${homepath}/game/admin.dat \
           --ro-bind ~/unv-testing-server/gdbinit.txt ~/unv-testing-server/gdbinit.txt \
