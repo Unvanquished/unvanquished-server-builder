@@ -54,8 +54,8 @@ in writeScript "unvanquished-server" ''
           --ro-bind /nix /nix \
           --ro-bind /etc/resolv.conf /etc/resolv.conf \
           --ro-bind ${pakpath} ${pakpath} \
-          --ro-bind /var/www/dl.unvanquished.net/pkg /pkg \
-          --ro-bind /home/sweet/public_html/pkg /pkg2 \
+          --ro-bind /var/www/dl.unvanquished.net/pkg /var/www/dl.unvanquished.net/pkg \
+          --ro-bind /home/sweet/public_html/pkg /home/sweet/public_html/pkg \
           --bind ${homepath} ${homepath} \
           --ro-bind ~/unvanquished-server/homepath/game/admin.dat ${homepath}/game/admin.dat \
           --ro-bind ~/unv-testing-server/gdbinit.txt ~/unv-testing-server/gdbinit.txt \
@@ -75,8 +75,8 @@ in writeScript "unvanquished-server" ''
                           -set vm.sgame.type 3 \
                           -set net_port 27990 \
                           -pakpath ${pakpath} \
-                          -pakpath /pkg \
-                          -pakpath /pkg2 \
+                          -pakpath /var/www/dl.unvanquished.net/pkg \
+                          -pakpath /home/sweet/public_html/pkg \
                           -set fs_extrapaks exp/${servername}/${filename} \
                           +exec server.cfg \
                           +set sv_hostname "$SERVERNAME" \
