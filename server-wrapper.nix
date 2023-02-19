@@ -35,7 +35,9 @@ in writeScript "unvanquished-server" ''
       SERVERNAME="^1Experimental ^3Development Server - ${servername}"
   fi
 
-  # Grab server's config from the source code, if available
+  # Grab server's config from the source code, if available.
+  # We check the file exists first, because we need to omit the argument if
+  # that path doesn't exist, or bwrap will refuse to start if it's missing.
   BWRAP_ARGS=""
   for src_path in game/layouts config game/maprotation.cfg; do
       if [ -e ${srcs.unvanquished}/dist/configs/$src_path ]; then
