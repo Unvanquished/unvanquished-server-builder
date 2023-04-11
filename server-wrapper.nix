@@ -16,8 +16,7 @@
 
 let killerWrapper = writeScript "killer-wrapper" ''
   #!${bash}/bin/bash
-  # Disabled for now
-  #/bin/sh -c "sleep 30; kill $$" &
+  /bin/sh -c "sleep 3d; kill $$" &
   exec "$@"
   '';
 
@@ -41,25 +40,25 @@ in writeScript "unvanquished-server" ''
   done
 
   exec tmux -L testing-server new-session -s ${tmux-session-name} -d \
-      ${bubblewrap}/bin/bwrap \
-          --unshare-all --share-net \
-          --ro-bind /nix /nix \
-          --ro-bind /etc/resolv.conf /etc/resolv.conf \
-          --ro-bind ${pakpath} ${pakpath} \
-          --ro-bind /var/www/dl.unvanquished.net/pkg /var/www/dl.unvanquished.net/pkg \
-          --ro-bind /home/sweet/public_html/pkg /home/sweet/public_html/pkg \
-          --bind ${homepath} ${homepath} \
-          --ro-bind ~/unvanquished-server/homepath/game/admin.dat ${homepath}/game/admin.dat \
-          --ro-bind ~/unv-testing-server/gdbinit.txt ~/unv-testing-server/gdbinit.txt \
-          $BWRAP_ARGS \
-          --tmpfs /tmp \
-          --proc /proc \
-          --dev /dev \
-          --die-with-parent \
-          --setenv PATH  "${bash}/bin" \
-          --setenv SHELL "${bash}/bin/bash" \
-          -- \
-              ${killerWrapper} \
+      ${killerWrapper} \
+          ${bubblewrap}/bin/bwrap \
+              --unshare-all --share-net \
+              --ro-bind /nix /nix \
+              --ro-bind /etc/resolv.conf /etc/resolv.conf \
+              --ro-bind ${pakpath} ${pakpath} \
+              --ro-bind /var/www/dl.unvanquished.net/pkg /var/www/dl.unvanquished.net/pkg \
+              --ro-bind /home/sweet/public_html/pkg /home/sweet/public_html/pkg \
+              --bind ${homepath} ${homepath} \
+              --ro-bind ~/unvanquished-server/homepath/game/admin.dat ${homepath}/game/admin.dat \
+              --ro-bind ~/unv-testing-server/gdbinit.txt ~/unv-testing-server/gdbinit.txt \
+              $BWRAP_ARGS \
+              --tmpfs /tmp \
+              --proc /proc \
+              --dev /dev \
+              --die-with-parent \
+              --setenv PATH  "${bash}/bin" \
+              --setenv SHELL "${bash}/bin/bash" \
+              -- \
                   ${gdb}/bin/gdb -x $HOME/unv-testing-server/gdbinit.txt --args \
                       "${daemon}/bin/daemonded" \
                           -libpath ${unvanquished-vms} \
