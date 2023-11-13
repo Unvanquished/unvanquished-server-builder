@@ -15,8 +15,6 @@
 , Daemon-commit
 , Unvanquished
 , Unvanquished-commit
-, unvanquished_src-dpkdir
-, unvanquished_src-dpkdir-commit
 }:
 
 with pkgs;
@@ -45,18 +43,11 @@ in rec {
       ref = Unvanquished;
       submodules = true;
     };
-
-    # assets
-    unvanquished_dpk = builtins.fetchGit {
-      url = "https://github.com/UnvanquishedAssets/unvanquished_src.dpkdir.git";
-      rev = unvanquished_src-dpkdir-commit;
-      ref = unvanquished_src-dpkdir;
-    };
   };
 
-  nacl-hacks-8 = pkgs.callPackage ./nacl-hacks.nix {
-    binary-deps-version = "8";
-    binary-deps-sha = "sha256-6r9j0HRMDC/7i8f4f5bBK4NmwsTpSChHrRWwz0ENAZo=";
+  nacl-hacks-9 = pkgs.callPackage ./nacl-hacks.nix {
+    binary-deps-version = "9";
+    binary-deps-sha = "sha256-5n8gRvTuke4e7EaZ/5G+dtCG6qmnawhtA1IXIFQPkzA=";
   };
 
 
@@ -66,17 +57,17 @@ in rec {
 
   daemon = pkgs.callPackage ./daemon.nix {
     source = srcs.daemon;
-    inherit nacl-hacks-8;
+    inherit nacl-hacks-9;
   };
 
   unvanquished-vms = pkgs.callPackage ./unvanquished.nix {
     source = srcs.unvanquished;
     daemon-source = srcs.daemon;
-    inherit nacl-hacks-8;
+    inherit nacl-hacks-9;
   };
 
   unvanquished-dpk = pkgs.callPackage ./unv-dpk.nix {
-    source = srcs.unvanquished_dpk;
+    source = srcs.unvanquished;
     inherit unvanquished-vms;
     inherit filename;
   };

@@ -2,10 +2,10 @@
 # Builds the gamelogic files, both as a nacl binary and a dll file
 #
 
-{ lib, stdenv, cmake, zlib, ncurses, python
+{ lib, stdenv, cmake, zlib, ncurses, python3
 , source
 , daemon-source
-, nacl-hacks-8
+, nacl-hacks-9
 # Those are here only because cmake doesn't have options to build
 # only the sgame dll
 , libGL, geoip, lua5, pkg-config, meson
@@ -20,13 +20,14 @@ stdenv.mkDerivation {
   dontPatchELF = true;
 
   preConfigure = ''
+    find
     rm -r daemon
     cp -r ${daemon-source} daemon
     chmod +w daemon -R
 
-    mkdir daemon/external_deps/linux-amd64-default_${nacl-hacks-8.binary-deps-version}/
-    cp ${nacl-hacks-8.unvanquished-binary-deps}/* daemon/external_deps/linux-amd64-default_${nacl-hacks-8.binary-deps-version} -r
-    chmod +w -R daemon/external_deps/linux-amd64-default_${nacl-hacks-8.binary-deps-version}/
+    mkdir daemon/external_deps/linux-amd64-default_${nacl-hacks-9.binary-deps-version}/
+    cp ${nacl-hacks-9.unvanquished-binary-deps}/* daemon/external_deps/linux-amd64-default_${nacl-hacks-9.binary-deps-version} -r
+    chmod +w -R daemon/external_deps/linux-amd64-default_${nacl-hacks-9.binary-deps-version}/
 
     #FIXME: remove as this is duplicated with nacl-hacks
     interpreter="$(< "$NIX_CC/nix-support/dynamic-linker")"
@@ -40,8 +41,8 @@ stdenv.mkDerivation {
 
   nativeBuildInputs = [
     cmake
-    nacl-hacks-8.unvanquished-binary-deps
-    (python.withPackages (ppkgs: [ppkgs.jinja2 ppkgs.pyyaml]))
+    nacl-hacks-9.unvanquished-binary-deps
+    (python3.withPackages (ppkgs: [ppkgs.jinja2 ppkgs.pyyaml]))
   ];
   buildInputs = [
     zlib

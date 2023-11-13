@@ -16,12 +16,12 @@ deploy_base_branch="master"
 testing_base_branch="master"
 experimental_base_branch="master"
 
-repos="DaemonEngine/Daemon Unvanquished/Unvanquished UnvanquishedAssets/unvanquished_src.dpkdir"
+repos="DaemonEngine/Daemon Unvanquished/Unvanquished"
 
 # the nightly pakpath
 pakpath="$HOME/unvanquished-server/pakpath"
 # the testing servers common paths
-root="$HOME/unv-testing-server"
+root="/mnt/media/code/unvanquished-server-builder"
 subpakpath="$root/pakpath"
 binaries="$root/bins"
 homepaths="$root/homepaths"

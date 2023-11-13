@@ -5,9 +5,9 @@
 { lib, stdenv
 , cmake, gmp, libGL, zlib, ncurses, geoip, lua5
 , nettle, curl, SDL2, freetype, glew, openal, libopus, opusfile, libogg
-, libvorbis, libjpeg, libwebp, libpng, python
+, libvorbis, libjpeg, libwebp, libpng, python3
 , source
-, nacl-hacks-8
+, nacl-hacks-9
 }:
 
 stdenv.mkDerivation rec {
@@ -15,15 +15,15 @@ stdenv.mkDerivation rec {
   src = source;
 
   preConfigure = ''
-    mkdir external_deps/linux-amd64-default_${nacl-hacks-8.binary-deps-version}/
-    cp ${nacl-hacks-8.unvanquished-binary-deps}/* external_deps/linux-amd64-default_${nacl-hacks-8.binary-deps-version} -r
-    chmod +w -R external_deps/linux-amd64-default_${nacl-hacks-8.binary-deps-version}/
+    mkdir external_deps/linux-amd64-default_${nacl-hacks-9.binary-deps-version}/
+    cp ${nacl-hacks-9.unvanquished-binary-deps}/* external_deps/linux-amd64-default_${nacl-hacks-9.binary-deps-version} -r
+    chmod +w -R external_deps/linux-amd64-default_${nacl-hacks-9.binary-deps-version}/
   '';
 
   nativeBuildInputs = [
     cmake
-    nacl-hacks-8.unvanquished-binary-deps
-    (python.withPackages (ppkgs: [ppkgs.jinja2 ppkgs.pyyaml]))
+    nacl-hacks-9.unvanquished-binary-deps
+    (python3.withPackages (ppkgs: [ppkgs.jinja2 ppkgs.pyyaml]))
   ];
   buildInputs = [
     gmp
