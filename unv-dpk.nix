@@ -18,7 +18,7 @@ stdenv.mkDerivation rec {
   ];
 
   unpackPhase = ''
-    cp -v -r --no-preserve=mode ${source} unvanquished_src.dpkdir
+    cp -v -r --no-preserve=mode ${source}/pkg/unvanquished_src.dpkdir unvanquished_src.dpkdir
   '';
 
   buildPhase = ''

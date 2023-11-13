@@ -58,6 +58,7 @@ in writeScript "unvanquished-server" ''
               --die-with-parent \
               --setenv PATH  "${bash}/bin" \
               --setenv SHELL "${bash}/bin/bash" \
+              --setenv TMPDIR "/tmp" \
               -- \
                   ${gdb}/bin/gdb -x $HOME/unv-testing-server/gdbinit.txt --args \
                       "${daemon}/bin/daemonded" \

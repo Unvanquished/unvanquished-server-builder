@@ -15,8 +15,6 @@
 , Daemon-commit
 , Unvanquished
 , Unvanquished-commit
-, unvanquished_src-dpkdir
-, unvanquished_src-dpkdir-commit
 }:
 
 with pkgs;
@@ -45,13 +43,6 @@ in rec {
       ref = Unvanquished;
       submodules = true;
     };
-
-    # assets
-    unvanquished_dpk = builtins.fetchGit {
-      url = "https://github.com/UnvanquishedAssets/unvanquished_src.dpkdir.git";
-      rev = unvanquished_src-dpkdir-commit;
-      ref = unvanquished_src-dpkdir;
-    };
   };
 
   nacl-hacks-8 = pkgs.callPackage ./nacl-hacks.nix {
@@ -76,7 +67,7 @@ in rec {
   };
 
   unvanquished-dpk = pkgs.callPackage ./unv-dpk.nix {
-    source = srcs.unvanquished_dpk;
+    source = srcs.unvanquished;
     inherit unvanquished-vms;
     inherit filename;
   };
